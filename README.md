@@ -3,7 +3,7 @@ PHP Client for the MKA API
 
 ## Setup
 ```
-require_once __DIR__ . '/vendor/autoload.php'; // Autoload files using Composer autoload
+require_once __DIR__ . '/vendor/autoload.php'; 
 
 use ApiClient\Client;
 use ApiClient\Model;
