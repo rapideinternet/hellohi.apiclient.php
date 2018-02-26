@@ -1,0 +1,26 @@
+{
+    "name": "mka/api-client",
+    "description": "MKA API client",
+    "type": "library",
+    "require": {
+        "php": ">=7.0",
+        "kamermans/guzzle-oauth2-subscriber": "^1.0"
+    },
+    "require-dev": {
+        "php": ">=7.0",
+        "kamermans/guzzle-oauth2-subscriber": "^1.0"
+    },
+    "license": "no",
+    "authors": [
+        {
+            "name": "Rens Reinders",
+            "email": "rens@rapide.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "ApiClient": "src/"
+        }
+    }
+}
