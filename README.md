@@ -72,7 +72,7 @@ $thread->update([
 ```
 
 ## update a thread message with endpoint override
-Sometimes it is necessary to override endpoints when using polymorphic relations. For example. Thread messages are fetched using their polymorphic master class 'item' trough /threads/{id}/items, but updated using it's own endpoint /threads/{id}/messages.
+Sometimes it is necessary to override endpoints when using polymorphic relations. For example. Thread messages are fetched using their polymorphic master class 'item' trough /threads/{id}/items, but updated using their own endpoint /threads/{id}/messages.
 
 ```
 $thread->all('items')[0]
