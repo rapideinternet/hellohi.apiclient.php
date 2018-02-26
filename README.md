@@ -23,10 +23,11 @@ PHP Client for the MKA API
 ```$items = $thread->items(['participant', 'participant.person']);```
 
 ## update a thread
+```
 $thread = Model::byId('threads', "kyd9nprax5lajbv3");
 $thread->update([
   'subject' => 'Some subject'
-]);
+]);```
 
 ## update a thread message with endpoint override
 ```
