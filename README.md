@@ -45,7 +45,8 @@ Client::init(
 $thread = Model::byId('threads', "kyd9nprax5lajbv3");
 $thread->update([
   'subject' => 'Some subject'
-]);```
+]);
+```
 
 ## update a thread message with endpoint override
 ```
