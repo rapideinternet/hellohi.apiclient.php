@@ -5,18 +5,18 @@ PHP Client for the MKA API
 ```
 require_once __DIR__ . '/vendor/autoload.php'; // Autoload files using Composer autoload
 
-	use ApiClient\Client;
-	use ApiClient\Model;
+use ApiClient\Client;
+use ApiClient\Model;
 
-	Client::init(
-		"https://api.staging.hellohi.nl/v1/oauth/token",
-		"https://api.staging.hellohi.nl/v1",
-		"your-oauth-client-id",
-		"your-oauth-your-secret",
-		"you@yourcompany.com",
-		"your-password",
-		"your-tenant-id"
-	);
+Client::init(
+	"https://api.staging.hellohi.nl/v1/oauth/token",
+	"https://api.staging.hellohi.nl/v1",
+	"your-oauth-client-id",
+	"your-oauth-your-secret",
+	"you@yourcompany.com",
+	"your-password",
+	"your-tenant-id"
+);
 ```
 
 ## get threads with creator includes
