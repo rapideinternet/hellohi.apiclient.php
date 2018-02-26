@@ -77,7 +77,7 @@ Sometimes it is necessary to override endpoints when using polymorphic relations
 ```
 $thread->all('items')[0]
   ->setEndpoint('messages')
-  ->update(['message' => 'Different messag']);
+  ->update(['message' => 'Different message']);
   ```
 
 
