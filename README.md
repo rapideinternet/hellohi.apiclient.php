@@ -39,6 +39,29 @@ Client::init(
 
 ## get thread_items with includes
 ```$items = $thread->items(['participant', 'participant.person']);```
+    
+## create a thread
+```
+$thread->create('threads', [
+	'subject' => 'Rapportage',
+	'company_id' => 'kyd9nprax5lajbv3',
+	'participants' => [
+		[
+			'person_id' => '8bkgjnrmdrz63pvd',
+			'company_id' => 'kyd9nprax5lajbv3',
+			'is_admin' => 1
+		]
+	],
+	'dossier_item_groups' => [
+		[
+			'dossier_item_group_template_id' => '8bkgjnrmdrz63pvd',
+			'year' => 2017,
+			'period' => 'q2'
+		]
+	],
+	'message' => 'branker'
+]);
+```
 
 ## update a thread
 ```
@@ -49,32 +72,14 @@ $thread->update([
 ```
 
 ## update a thread message with endpoint override
+Sometimes it is necessary to override endpoints when using polymorphic relations. For example. Thread messages are fetched using their polymorphic master class 'item' trough /threads/{id}/items, but updated using it's own endpoint /threads/{id}/messages.
+
 ```
 $thread->all('items')[0]
   ->setEndpoint('messages')
   ->update(['message' => 'Different messag']);
   ```
-    
-## create a thread
-		$thread->create('threads', [
-			'subject' => 'Rapportage',
-			'company_id' => 'kyd9nprax5lajbv3',
-	    'participants' => [
-		 		[
-				  'person_id' => '8bkgjnrmdrz63pvd',
-			    'company_id' => 'kyd9nprax5lajbv3',
-				  'is_admin' => 1
-				]
-			],
-			'dossier_item_groups' => [
-				[
-					'dossier_item_group_template_id' => '8bkgjnrmdrz63pvd',
-					'year' => 2017,
-					'period' => 'q2'
-				]
-			],
-			'message' => 'branker'
-		]);
+
 
 ## delete a thread
 ```$thread->delete();```
