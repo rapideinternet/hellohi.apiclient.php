@@ -1,8 +1,9 @@
 # mka.apiclient
 PHP Client for the MKA API
 
-# Setup
-```require_once __DIR__ . '/vendor/autoload.php'; // Autoload files using Composer autoload
+## Setup
+```
+require_once __DIR__ . '/vendor/autoload.php'; // Autoload files using Composer autoload
 
 	use ApiClient\Client;
 	use ApiClient\Model;
@@ -15,7 +16,8 @@ PHP Client for the MKA API
 		"you@yourcompany.com",
 		"your-password",
 		"your-tenant-id"
-	);```
+	);
+```
 
 ## get threads with creator includes
 ```$threads = Model::all('threads', ['creator']);```
