@@ -48,7 +48,7 @@ class Model
 			$includes = $arguments[1];
 		} else { // magic method invoike
 			$endPoint = $name;
-			$includes = $arguments[0];
+			$includes = $arguments[0] ?? [];
 		}
 
 		return self::__all(
