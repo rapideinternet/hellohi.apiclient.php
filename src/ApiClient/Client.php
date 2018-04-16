@@ -32,6 +32,10 @@ class Client
 		return self::$instance;
 	}
 
+	public static function clearInstance() {
+		self::$instance = null;
+	}
+
 	public static function getInstance() {
 		if(!self::$instance) {
 			throw new Exception("Client not initialized, run init() first");
@@ -85,7 +89,8 @@ class Client
 		return $url;
 	}
 
-	public function call($method, $endpoint, $data = [], $includes = []) {
+	public function call($method, $endpoint, $data = [], $includes = [])
+	{
 
 		$url = $this->prepareUrl($endpoint, $includes);
 
@@ -94,20 +99,22 @@ class Client
 				'headers' => $this->getHeaders(),
 				'json' => $data
 			]);
-		} catch(Exception $e) {
+		} catch (Exception $e) {
 			// api exception ?
-			if($e instanceof GuzzleHttp\Exception\ClientException) {
+			if ($e instanceof GuzzleHttp\Exception\ClientException) {
 				$contents = $e->getResponse()->getBody(true)->getContents();
+				var_dump($contents);
 				$contents = $this->decodeResponseData($contents);
 
 				$message = $contents['message'];
 				if (isset($contents['errors'])) {
 					$message .= "[" . $this->decodeResponseData($contents['errors']) . "]";
 				}
+
 				throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
 			} else {
 				// generic exception
-				throw new Exception($endpoint.": ".$e->getMessage());
+				throw new Exception($endpoint . ": " . $e->getMessage());
 			}
 		}
 
