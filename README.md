@@ -1,5 +1,5 @@
-# mka.apiclient
-PHP Client for the MKA API. This documentation uses the threads endpoint as example. For a a list of available endpionts, please refer to the client documentation. ##url-here-please##.
+# hellohi.apiclient
+PHP Client for the HelloHi API. This documentation uses the threads endpoint as example. For a a list of available endpionts, please refer to the client documentation. ##url-here-please##.
 
 ## Setup
 ```
