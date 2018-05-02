@@ -10,6 +10,7 @@ class Client
 {
 	private $baseUrl;
 	private $client;
+	private $oAuth;
 	private $headers;
 	private static $instance = null;
 
@@ -64,10 +65,10 @@ class Client
 			'password' => $password,
 		]);
 
-		$oauth = new OAuth2Middleware($grant_type);
+		$this->oAuth = new OAuth2Middleware($grant_type);
 
 		$stack = HandlerStack::create();
-		$stack->push($oauth);
+		$stack->push($this->oAuth);
 
 		return new GuzzleHttp\Client([
 			'handler' => $stack,
@@ -87,6 +88,10 @@ class Client
 		}
 
 		return $url;
+	}
+
+	public function getToken() {
+		return $this->oAuth->getAccessToken();
 	}
 
 	public function call($method, $endpoint, $data = [], $includes = [])
