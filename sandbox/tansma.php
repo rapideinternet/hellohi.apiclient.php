@@ -157,11 +157,11 @@ function cleanNonAsciiCharactersInString($orig_text) {
 try {
 
 	Client::init(
-		"https://api.hellohi.nl/v1/oauth/token",
-		"https:/api.hellohi.nl/v1",
+		"https://api.mijnkantoorapp.nl/v1/oauth/token",
+		"https:/api.mijnkantoorapp.nl/v1",
 		"1",
 		"gKDZ5X1bv6iTtyikZ1EAufhckHb8K2YQ9iMdJDJR",
-		"admin@admin.com",
+		"tamsma@hellohi.nl",
 		"admin",
 		"8bkgjnrmjdrz63pv"
 	);
@@ -169,14 +169,14 @@ try {
 
 	$employeeRoleId = "kyd9nprax5lajbv3";
 
+	$addedMapping = [];
+
+
 	foreach(explode("\n", file_get_contents("import.csv")) as $i => $line) {
 		if($i == 0) {
 			continue;
 		}
 
-		if($i <= 131) {
-			continue;
-		}
 
 		$line = cleanNonAsciiCharactersInString($line);
 
@@ -197,6 +197,8 @@ try {
 		if(!$lastName) {
 			$lastName = $firstName;
 		}
+
+		$emailPrivate = trim($row[6]);
 
 		$remoteId = (int)$row[0];
 
@@ -219,28 +221,38 @@ try {
 			'phone' => $row[7]
 		];
 
-		echo "Creating customer ";
+		echo "Creating customer: \n";
 		$customer = Model::create('customers', $customerData);
 		//var_dump($customer);
 
-		// create person
-		$personData = [
-			'first_name' => $firstName,
-			'last_name' => $lastName,
-			'address' => $row[2],
-			'postal_code' => $row[3],
-			'city' => ucfirst(strtolower($row[4])),
-			'email_private' => $row[6],
-			'phone_number_private' => $row[7]
-		];
+		echo "\tProcessing: ".$emailPrivate."\n";
 
-		var_dump($personData);
+		if($emailPrivate && isset($addedMapping[$emailPrivate])) {
+			// pivot
+			$person = $addedMapping[$emailPrivate];
 
-		echo "Creating person ";
-		$person = Model::create('persons', $personData);
+			echo "\tPerson already added: ";
+		} else {
+			// create person
+			$personData = [
+				'first_name' => $firstName,
+				'last_name' => $lastName,
+				'address' => $row[2],
+				'postal_code' => $row[3],
+				'city' => ucfirst(strtolower($row[4])),
+				'email_private' => $row[6],
+				'phone_number_private' => $row[7]
+			];
 
 
-		echo "Attaching customer ";
+			echo "\tCreating person: ";
+			$person = Model::create('persons', $personData);
+
+			$addedMapping[$emailPrivate] = $person;
+		}
+
+
+		echo "\tAttaching customer\n";
 		$pivot = Model::create('customers/'.$customer->id.'/employees/'.$person->id, [
 			//'job_title' => 'Directie',
 			'customer_email' => $person->email_private,
