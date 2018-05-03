@@ -101,7 +101,7 @@ class Client
 		return $this->oAuth->getAccessToken();
 	}
 
-	function uploadDossierItem($customerId, $directoryId, $groupName, array $dossierItems) {
+	public function uploadDossierItem($customerId, $directoryId, $groupName, array $dossierItems) {
 
 		$url = $this->prepareUrl("dossier_item_groups", []);
 
