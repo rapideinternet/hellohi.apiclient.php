@@ -2,8 +2,8 @@
 
 	require_once __DIR__ . '/vendor/autoload.php'; // Autoload files using Composer autoload
 
-	use ApiClient\Client;
-	use ApiClient\Model;
+	use HelloHi\ApiClient\Client;
+	use HelloHi\ApiClient\Model;
 
 	Client::init(
 		"https://api.staging.hellohi.nl/v1/oauth/token",

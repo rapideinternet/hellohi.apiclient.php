@@ -1,4 +1,4 @@
-<?php namespace ApiClient;
+<?php namespace HelloHi\ApiClient;
 
 class ModelTransformer
 {
