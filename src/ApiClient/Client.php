@@ -10,16 +10,23 @@ class Client
 {
 	private $baseUrl;
 	private $client;
+	private $uploadClient;
 	private $oAuth;
 	private $headers;
+	private $tenantId;
 	private static $instance = null;
 
 	private function __construct($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId)
 	{
 		$this->baseUrl = $baseUrl;
+		$this->tenantId = $tenantId;
 		$this->headers = [];
 
 		$this->client = $this->getClient($auhUrl, $clientId, $clientSecret, $username, $password);
+
+		// use a different client for file uploads
+		$this->uploadClient = new GuzzleHttp\Client(['debug' => false, 'exceptions' => false]);
+
 		$this->addHeader('Content-Type', 'application/json');
 		$this->addHeader('Accept', 'application/json');
 
@@ -92,6 +99,38 @@ class Client
 
 	public function getToken() {
 		return $this->oAuth->getAccessToken();
+	}
+
+	function uploadDossierItem($customerId, $directoryId, $groupName, array $dossierItems) {
+
+		$url = $this->prepareUrl("dossier_item_groups", []);
+
+		$parts = [
+			['name' => 'dossier_directory_id', 'contents' => $directoryId],
+			['name' => 'customer_id', 'contents' => $customerId],
+			['name' => 'name', 'contents' => $groupName],
+			['name' => 'status', 'contents' => 'open'],
+			['name' => 'is_public', 'contents' =>  0]
+		];
+
+		foreach($dossierItems as $i => $dossierItem) {
+			$parts[] = [
+				'dossier_items['.$i.'][resource]' => $dossierItem['handle'],
+				'dossier_items['.$i.'][name]' => $dossierItem['name'],
+			];
+		}
+
+		$response = $this->uploadClient->post($url, [
+			'headers' => [
+				'Authorization' => 'Bearer '.$this->getToken(),
+				'X-Tenant' => $this->tenantId,
+				'accept' => 'application/json'
+			],
+			'multipart' => $parts
+		]);
+
+		$data = $response->getBody()->getContents();
+		return $this->decodeResponseData($data);
 	}
 
 	public function call($method, $endpoint, $data = [], $includes = [])
