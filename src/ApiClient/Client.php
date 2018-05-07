@@ -138,14 +138,11 @@ class Client
 	private function parseErrors($contents) {
 		$contents = $this->decodeResponseData($contents);
 
-		$message = $contents['message'];
 		if (isset($contents['errors'])) {
-			$message .= "[" . $this->decodeResponseData($contents['errors']) . "]";
+			return GuzzleHttp\json_encode($contents['errors']);
 		}
 
-		return $message;
-
-
+		return  $contents['message'];
 	}
 
 	public function call($method, $endpoint, $data = [], $includes = [])
@@ -157,6 +154,7 @@ class Client
 				'headers' => $this->getHeaders(),
 				'json' => $data
 			]);
+
 		} catch (Exception $e) {
 			// api exception ?
 			if ($e instanceof GuzzleHttp\Exception\ClientException) {

@@ -83,6 +83,10 @@ class Model
 		$client = Client::getInstance();
 		$response = $client->post($endpoint, $data, $includes);
 
+		if(!$response) {
+			return null;
+		}
+
 		return ModelTransformer::fromData($response, $endpoint);
 	}
 
