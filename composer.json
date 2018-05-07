@@ -20,7 +20,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
-            "HelloHi\\ApiClient": "src/"
+            "HelloHi": "src/"
         }
     }
 }

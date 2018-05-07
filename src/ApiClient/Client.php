@@ -147,7 +147,7 @@ class Client
 			// api exception ?
 			if ($e instanceof GuzzleHttp\Exception\ClientException) {
 				$contents = $e->getResponse()->getBody(true)->getContents();
-				var_dump($contents);
+
 				$contents = $this->decodeResponseData($contents);
 
 				$message = $contents['message'];
@@ -155,10 +155,18 @@ class Client
 					$message .= "[" . $this->decodeResponseData($contents['errors']) . "]";
 				}
 
-				throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+				if($this->exceptions) {
+					throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+				}
+
+
+				return null;
 			} else {
-				// generic exception
-				throw new Exception($endpoint . ": " . $e->getMessage());
+				if($this->exceptions) {
+					throw new Exception($endpoint . ": " . $e->getMessage());
+				}
+
+				return null;
 			}
 		}
 
