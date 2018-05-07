@@ -16,6 +16,8 @@ class Client
 	private $tenantId;
 	private static $instance = null;
 
+	private $exceptions = false;
+
 	private function __construct($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId)
 	{
 		$this->baseUrl = $baseUrl;
@@ -133,9 +135,21 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
+	private function parseErrors($contents) {
+		$contents = $this->decodeResponseData($contents);
+
+		$message = $contents['message'];
+		if (isset($contents['errors'])) {
+			$message .= "[" . $this->decodeResponseData($contents['errors']) . "]";
+		}
+
+		return $message;
+
+
+	}
+
 	public function call($method, $endpoint, $data = [], $includes = [])
 	{
-
 		$url = $this->prepareUrl($endpoint, $includes);
 
 		try {
@@ -147,18 +161,11 @@ class Client
 			// api exception ?
 			if ($e instanceof GuzzleHttp\Exception\ClientException) {
 				$contents = $e->getResponse()->getBody(true)->getContents();
-
-				$contents = $this->decodeResponseData($contents);
-
-				$message = $contents['message'];
-				if (isset($contents['errors'])) {
-					$message .= "[" . $this->decodeResponseData($contents['errors']) . "]";
-				}
+				$message = $this->parseErrors($contents);
 
 				if($this->exceptions) {
 					throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
 				}
-
 
 				return null;
 			} else {
