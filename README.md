@@ -48,8 +48,8 @@ $thread->create('threads', [
 	'participants' => [
 		[
 			'person_id' => '8bkgjnrmdrz63pvd',
-			'company_id' => 'kyd9nprax5lajbv3',
-			'is_admin' => 1
+			'customer_id' => 'kyd9nprax5lajbv3',
+			'is_admin' => 0
 		]
 	],
 	'dossier_item_groups' => [
