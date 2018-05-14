@@ -135,6 +135,42 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
+    public function uploadDossierItemForThread($threadId, $message,  array $dossierItems) {
+
+        $url = $this->prepareUrl("threads/".$threadId."/items", []);
+
+        $parts = [
+            ['name' => 'message', 'contents' => $message],
+        ];
+
+        foreach($dossierItems as $i => $dossierItem) {
+            $parts[] = [
+                'name' => 'dossier_items['.$i.'][name]',
+                'contents' => $dossierItem['name'],
+            ];
+            $parts[] = [
+                'name' => 'dossier_items['.$i.'][resource]',
+                'contents' => $dossierItem['handle'],
+            ];
+            $parts[] = [
+                'name' => 'dossier_items['.$i.'][status]',
+                'contents' => $dossierItem['status'],
+            ];
+        }
+
+        $response = $this->uploadClient->post($url, [
+            'headers' => [
+                'Authorization' => 'Bearer '.$this->getToken(),
+                'X-Tenant' => $this->tenantId,
+                'accept' => 'application/json'
+            ],
+            'multipart' => $parts
+        ]);
+
+        $data = $response->getBody()->getContents();
+        return $this->decodeResponseData($data);
+    }
+
 	private function parseErrors($contents) {
 		$contents = $this->decodeResponseData($contents);
 
