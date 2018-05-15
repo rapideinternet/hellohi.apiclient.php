@@ -3,6 +3,10 @@
 class ModelTransformer
 {
 	public static function fromData($data, $endpoint) {
+		if(!$data) {
+			return null;
+		}
+
 		$data = self::unwrapDataEnvelopes($data);
 
 		// is it a list?

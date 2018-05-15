@@ -16,7 +16,9 @@ class Client
 	private $tenantId;
 	private static $instance = null;
 
-	private $exceptions = false;
+	public $exceptions = false;
+
+	public $lastError = "";
 
 	private function __construct($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId)
 	{
@@ -139,10 +141,14 @@ class Client
 		$contents = $this->decodeResponseData($contents);
 
 		if (isset($contents['errors'])) {
-			return GuzzleHttp\json_encode($contents['errors']);
+			$message = GuzzleHttp\json_encode($contents['errors']);
+		} else {
+			$message = $contents['message'];;
 		}
 
-		return  $contents['message'];
+		$this->lastError = $message;
+
+		return $message;
 	}
 
 	public function call($method, $endpoint, $data = [], $includes = [])
@@ -161,18 +167,19 @@ class Client
 				$contents = $e->getResponse()->getBody(true)->getContents();
 				$message = $this->parseErrors($contents);
 
-				if($this->exceptions) {
-					throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+				if(isset($contents['status_code'])) {
+					if ($this->exceptions) {
+						throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+					}
 				}
-
-				return null;
-			} else {
-				if($this->exceptions) {
-					throw new Exception($endpoint . ": " . $e->getMessage());
-				}
-
-				return null;
 			}
+
+			// general exception
+			if($this->exceptions) {
+				throw new Exception($endpoint . ": " . $e->getMessage());
+			}
+
+			return null;
 		}
 
 		$data = $response->getBody()->getContents();
