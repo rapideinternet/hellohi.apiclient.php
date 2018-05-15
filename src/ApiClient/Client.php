@@ -211,10 +211,10 @@ class Client
 					if ($this->exceptions) {
 						throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
 					}
-				} else if($e instanceof GuzzleHttp\Exception\RequestException) {
-					$contents = $e->getResponse()->getBody(true)->getContents();
-					$message = $this->parseErrors($contents);
-				}
+				} 
+			} else if($e instanceof GuzzleHttp\Exception\RequestException) {
+				$contents = $e->getResponse()->getBody(true)->getContents();
+				$message = $this->parseErrors($contents);
 			}
 
 			// general exception
