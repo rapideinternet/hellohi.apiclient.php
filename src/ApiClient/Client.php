@@ -37,6 +37,10 @@ class Client
 		$this->setTenantId($tenantId);
 	}
 
+	public function getLastError() {
+		return $this->lastError;
+	}
+
 	public static function init($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId) {
 		if(!self::$instance) {
 			self::$instance = new self($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId);
