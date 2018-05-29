@@ -1,5 +1,8 @@
 <?php namespace HelloHi\ApiClient;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator; 
+use Illuminate\Http\Request;
+
 class Model
 {
 	private $endpoint;
@@ -101,5 +104,25 @@ class Model
 		$segments[count($segments)-1] = $endpoint;
 		$this->endpoint = implode("/", $segments);
 		return $this;
+	}
+
+	public static function paginate($items, $perPage)
+    {
+        $pageStart = request('page', 1);
+        $offSet = ($pageStart * $perPage) - $perPage;
+        $itemsForCurrentPage = array_slice($items, $offSet, $perPage, TRUE);
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $itemsForCurrentPage, count($items), $perPage,
+            \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+    }
+
+    public static function paginateResults($endpoint, $includes = [], $perPage = 15, Request $request) {
+		$client = Client::getInstance();
+		$response = $client->get($endpoint, $includes);
+		$transformedData = ModelTransformer::fromData($response, $endpoint);
+		return self::paginate($transformedData, $perPage);
 	}
 }
