@@ -1,6 +1,7 @@
 <?php namespace HelloHi\ApiClient;
 
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator; 
+use Illuminate\Http\Request;
 
 class ModelTransformer
 {
@@ -30,6 +31,7 @@ class ModelTransformer
 		}
 
 		$unwrapped = [];
+
 		foreach($data as $key => $val) {
 			if(is_array($val)) {
 				$unwrapped[$key] = self::unwrapDataEnvelopes($val);
@@ -37,7 +39,6 @@ class ModelTransformer
 				$unwrapped[$key] = $val;
 			}
 		}
-
 		return $unwrapped;
 	}
 
@@ -46,4 +47,9 @@ class ModelTransformer
 			return $data['meta']['pagination'];
 		}
 	}
+
+	public static function paginate($items, $count, $limit, $page){
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator($items, $count, $limit, $page);
+        return $paginator;
+    }
 }

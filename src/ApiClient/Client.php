@@ -95,7 +95,7 @@ class Client
 		]);
 	}
 
-	private function prepareUrl($endpoint, $includes, $perPage = PHP_INT_MAX, $currentPage = 1) {
+	private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1) {
 		$url = $this->baseUrl."/".$endpoint;
 
 		if(count($includes)) {
@@ -195,7 +195,7 @@ class Client
 		return $message;
 	}
 
-	public function call($method, $endpoint, $data = [], $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1)
+	public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
 	{
 		$url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
 
@@ -237,7 +237,7 @@ class Client
 		return json_decode($data, true);
 	}
 
-	public function get($endpoint, $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1) {
+	public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
 		return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
 	}
 

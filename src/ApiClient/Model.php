@@ -49,7 +49,7 @@ class Model
 		} elseif($name == "all") {
 			$endPoint = $arguments[0];
 			$includes = $arguments[1];
-			$perPage = $arguments[2] ?? PHP_INT_MAX;
+			$perPage = $arguments[2] ?? 15;
 			$currentPage = $arguments[3] ?? 1;
 		} else { // magic method invoike
 			$endPoint = $name;
@@ -66,18 +66,15 @@ class Model
 		);
 	}
 
-	public static function __all($endpoint, $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1) {
+	public static function __all($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
 		$client = Client::getInstance();
 		$response = $client->get($endpoint, $includes, $perPage, $currentPage);
 		$data = ModelTransformer::fromData($response, $endpoint);
 		$pagination = ModelTransformer::paginationData($response, $endpoint);
-		return [
-			"data" => $data,
-			"meta" => $pagination	
-		];
+		return ModelTransformer::paginate($data, $pagination['total'], $pagination['per_page'], $pagination['current_page']);
 	}
 
-	public static function __byId($endpoint, $id, $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1) {
+	public static function __byId($endpoint, $id, $includes = [], $perPage = 15, $currentPage = 1) {
 		$client = Client::getInstance();
 		$response = $client->get($endpoint."/".$id, $includes, $perPage, $currentPage);
 		return ModelTransformer::fromData($response, $endpoint);
