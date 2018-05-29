@@ -106,8 +106,7 @@ class Model
 		return $this;
 	}
 
-	public static function paginate($items, $perPage)
-    {
+	public static function paginate($items, $perPage) {
         $pageStart = request('page', 1);
         $offSet = ($pageStart * $perPage) - $perPage;
         $itemsForCurrentPage = array_slice($items, $offSet, $perPage, TRUE);
