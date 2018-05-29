@@ -1,5 +1,8 @@
 <?php namespace HelloHi\ApiClient;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator; 
+use Illuminate\Http\Request;
+
 class ModelTransformer
 {
 	public static function fromData($data, $endpoint) {
@@ -15,7 +18,7 @@ class ModelTransformer
 			foreach($data as $attributes) {
 				$collection[] = new Model($attributes, $endpoint);
 			}
-			return $collection;
+			return collect($collection);
 		} elseif(isset($data['object'])) {
 			return new Model($data, $endpoint);
 		}
@@ -28,6 +31,7 @@ class ModelTransformer
 		}
 
 		$unwrapped = [];
+
 		foreach($data as $key => $val) {
 			if(is_array($val)) {
 				$unwrapped[$key] = self::unwrapDataEnvelopes($val);
@@ -35,7 +39,17 @@ class ModelTransformer
 				$unwrapped[$key] = $val;
 			}
 		}
-
 		return $unwrapped;
 	}
+
+	public static function paginationData($data, $endpoint) {
+		if($data['meta']['pagination'] != null) {
+			return $data['meta']['pagination'];
+		}
+	}
+
+	public static function paginate($items, $count, $limit, $page){
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator($items, $count, $limit, $page);
+        return $paginator;
+    }
 }

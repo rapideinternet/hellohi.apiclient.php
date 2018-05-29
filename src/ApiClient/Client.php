@@ -95,11 +95,14 @@ class Client
 		]);
 	}
 
-	private function prepareUrl($endpoint, $includes) {
+	private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1) {
 		$url = $this->baseUrl."/".$endpoint;
 
 		if(count($includes)) {
 			$url .= "?include=".implode(",", $includes);
+			$url .= "&limit=". $perPage ."&page=". $currentPage;
+		}else{
+			$url .= "?limit=". $perPage ."&page=". $currentPage;
 		}
 
 		return $url;
@@ -138,6 +141,7 @@ class Client
 		]);
 
 		$data = $response->getBody()->getContents();
+
 		return $this->decodeResponseData($data);
 	}
 
@@ -191,9 +195,9 @@ class Client
 		return $message;
 	}
 
-	public function call($method, $endpoint, $data = [], $includes = [])
+	public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
 	{
-		$url = $this->prepareUrl($endpoint, $includes);
+		$url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
 
 		try {
 			$response = $this->client->request($method, $url, [
@@ -233,8 +237,8 @@ class Client
 		return json_decode($data, true);
 	}
 
-	public function get($endpoint, $includes = []) {
-		return $this->call('GET', $endpoint, [], $includes);
+	public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
+		return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
 	}
 
 	public function patch($endpoint, $data = [], $includes = []) {
