@@ -38,4 +38,10 @@ class ModelTransformer
 
 		return $unwrapped;
 	}
+
+	public static function paginationData($data, $endpoint) {
+		if($data['meta']['pagination'] != null) {
+			return $data['meta']['pagination'];
+		}
+	}
 }
