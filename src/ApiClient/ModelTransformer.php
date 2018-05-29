@@ -1,5 +1,7 @@
 <?php namespace HelloHi\ApiClient;
 
+use Tightenco\Collect\Support\Collection;
+
 class ModelTransformer
 {
 	public static function fromData($data, $endpoint) {
@@ -15,7 +17,7 @@ class ModelTransformer
 			foreach($data as $attributes) {
 				$collection[] = new Model($attributes, $endpoint);
 			}
-			return $collection;
+			return collect($collection);
 		} elseif(isset($data['object'])) {
 			return new Model($data, $endpoint);
 		}
