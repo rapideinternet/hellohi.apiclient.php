@@ -49,26 +49,37 @@ class Model
 		} elseif($name == "all") {
 			$endPoint = $arguments[0];
 			$includes = $arguments[1];
+			$perPage = $arguments[2] ?? PHP_INT_MAX;
+			$currentPage = $arguments[3] ?? 1;
 		} else { // magic method invoike
 			$endPoint = $name;
 			$includes = $arguments[0] ?? [];
+			$perPage = $arguments[2] ?? [];
+			$currentPage = $arguments[3] ?? [];
 		}
 
 		return self::__all(
 			$endPoint,
-			$includes
+			$includes,
+			$perPage,
+			$currentPage
 		);
 	}
 
-	public static function __all($endpoint, $includes = []) {
+	public static function __all($endpoint, $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1) {
 		$client = Client::getInstance();
-		$response = $client->get($endpoint, $includes);
-		return ModelTransformer::fromData($response, $endpoint);
+		$response = $client->get($endpoint, $includes, $perPage, $currentPage);
+		$data = ModelTransformer::fromData($response, $endpoint);
+		$pagination = ModelTransformer::paginationData($response, $endpoint);
+		return [
+			"data" => $data,
+			"meta" => $pagination	
+		];
 	}
 
-	public static function __byId($endpoint, $id, $includes = []) {
+	public static function __byId($endpoint, $id, $includes = [], $perPage = PHP_INT_MAX, $currentPage = 1) {
 		$client = Client::getInstance();
-		$response = $client->get($endpoint."/".$id, $includes);
+		$response = $client->get($endpoint."/".$id, $includes, $perPage, $currentPage);
 		return ModelTransformer::fromData($response, $endpoint);
 	}
 
@@ -104,24 +115,5 @@ class Model
 		$segments[count($segments)-1] = $endpoint;
 		$this->endpoint = implode("/", $segments);
 		return $this;
-	}
-
-	public static function paginate($items, $perPage) {
-        $pageStart = request('page', 1);
-        $offSet = ($pageStart * $perPage) - $perPage;
-        $itemsForCurrentPage = array_slice($items, $offSet, $perPage, TRUE);
-
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $itemsForCurrentPage, count($items), $perPage,
-            \Illuminate\Pagination\Paginator::resolveCurrentPage(),
-            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
-        );
-    }
-
-    public static function paginateResults($endpoint, $includes = [], $perPage = 15, Request $request) {
-		$client = Client::getInstance();
-		$response = $client->get($endpoint, $includes);
-		$transformedData = ModelTransformer::fromData($response, $endpoint);
-		return self::paginate($transformedData, $perPage);
 	}
 }
