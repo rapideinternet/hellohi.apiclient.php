@@ -4,7 +4,9 @@
     "type": "library",
     "require": {
         "php": ">=7.0",
-        "kamermans/guzzle-oauth2-subscriber": "^1.0"
+        "kamermans/guzzle-oauth2-subscriber": "^1.0",
+        "illuminate/pagination": "^5.7@dev",
+        "illuminate/http": "^5.7@dev"
     },
     "require-dev": {
         "php": ">=7.0",
