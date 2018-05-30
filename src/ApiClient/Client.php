@@ -112,7 +112,7 @@ class Client
 		return $this->oAuth->getAccessToken();
 	}
 
-	public function uploadDossierItem($customerId, $directoryId, $groupName, array $dossierItems) {
+	public function uploadDossierItems($customerId, $directoryId, $groupName, array $dossierItems) {
 
 		$url = $this->prepareUrl("dossier_item_groups", []);
 
@@ -145,7 +145,7 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
-    public function uploadDossierItemForThread($threadId, $message,  array $dossierItems) {
+    public function uploadDossierItemsForThread($threadId, $message,  array $dossierItems) {
 
         $url = $this->prepareUrl("threads/".$threadId."/items", []);
 
