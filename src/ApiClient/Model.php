@@ -70,7 +70,7 @@ class Model
 		$client = Client::getInstance();
 		$response = $client->get($endpoint, $includes, $perPage, $currentPage);
 		$data = ModelTransformer::fromData($response, $endpoint);
-		if(array_key_exists('pagination', $response['meta'])){
+		if($response['meta'] != null && array_key_exists('pagination', $response['meta'])){
 			$pagination = ModelTransformer::paginationData($response, $endpoint);
 		}else{
 			$pagination['total'] = 1;
