@@ -70,7 +70,13 @@ class Model
 		$client = Client::getInstance();
 		$response = $client->get($endpoint, $includes, $perPage, $currentPage);
 		$data = ModelTransformer::fromData($response, $endpoint);
-		$pagination = ModelTransformer::paginationData($response, $endpoint);
+		if(array_key_exists('pagination', $response['meta'])){
+			$pagination = ModelTransformer::paginationData($response, $endpoint);
+		}else{
+			$pagination['total'] = 1;
+			$pagination['per_page'] = 15;
+			$pagination['current_page'] = 1;
+		}
 		return ModelTransformer::paginate($data, $pagination['total'], $pagination['per_page'], $pagination['current_page']);
 	}
 
