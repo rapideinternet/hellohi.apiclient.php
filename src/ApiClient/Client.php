@@ -112,7 +112,7 @@ class Client
 		return $this->oAuth->getAccessToken();
 	}
 
-	public function uploadDossierItem($customerId, $directoryId, $groupName, array $dossierItems) {
+	public function uploadDossierItems($customerId, $directoryId, $groupName, $groupCreatedAtDate = null, array $dossierItems) {
 
 		$url = $this->prepareUrl("dossier_item_groups", []);
 
@@ -120,14 +120,20 @@ class Client
 			['name' => 'dossier_directory_id', 'contents' => $directoryId],
 			['name' => 'customer_id', 'contents' => $customerId],
 			['name' => 'name', 'contents' => $groupName],
+			['name' => 'created_at', 'contents' => $groupCreatedAtDate],
 			['name' => 'status', 'contents' => 'open'],
 			['name' => 'is_public', 'contents' =>  0]
 		];
 
 		foreach($dossierItems as $i => $dossierItem) {
 			$parts[] = [
-				'dossier_items['.$i.'][resource]' => $dossierItem['handle'],
-				'dossier_items['.$i.'][name]' => $dossierItem['name'],
+				'name' => 'dossier_items['.$i.'][name]',
+				'contents' => $dossierItem['name'],
+			];
+
+			$parts[] = [
+				'name' => 'dossier_items['.$i.'][resource]',
+				'contents' => $dossierItem['handle'],
 			];
 		}
 
@@ -145,7 +151,7 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
-    public function uploadDossierItemForThread($threadId, $message,  array $dossierItems) {
+    public function uploadDossierItemsForThread($threadId, $message,  array $dossierItems) {
 
         $url = $this->prepareUrl("threads/".$threadId."/items", []);
 

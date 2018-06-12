@@ -119,4 +119,9 @@ class Model
 		$this->endpoint = implode("/", $segments);
 		return $this;
 	}
+
+	public function toArray()
+    {
+        return $this->attributes;
+    }
 }
