@@ -260,6 +260,7 @@ class Client
 	}
 
 	public function setTenantId($id) {
+		$this->tenantId = $id;
 		$this->addHeader('X-Tenant', $id);
 	}
 }
