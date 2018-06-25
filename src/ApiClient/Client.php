@@ -112,6 +112,51 @@ class Client
 		return $this->oAuth->getAccessToken();
 	}
 
+    /**
+     * @param $dossierItemId
+     * @return null|$response
+     * @throws ApiException
+     * @throws Exception
+     */
+    public function downloadDossierItem($dossierItemId)
+    {
+        $endpoint = sprintf("dossier_items/%s/download", $dossierItemId);
+        $url = $this->prepareUrl($endpoint, []);
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $this->getHeaders(),
+                'stream' => true
+            ]);
+
+        } catch (Exception $e) {
+            dd($e);
+            // api exception ?
+            if ($e instanceof GuzzleHttp\Exception\ClientException) {
+                $contents = $e->getResponse()->getBody(true)->getContents();
+                $message = $this->parseErrors($contents);
+
+                if(isset($contents['status_code'])) {
+                    if ($this->exceptions) {
+                        throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+                    }
+                }
+            } else if($e instanceof GuzzleHttp\Exception\RequestException) {
+                $contents = $e->getResponse()->getBody(true)->getContents();
+                $message = $this->parseErrors($contents);
+            }
+
+            // general exception
+            if($this->exceptions) {
+                throw new Exception($endpoint . ": " . $e->getMessage());
+            }
+
+            return null;
+        }
+
+        return $response;
+    }
+
 	public function uploadDossierItems($customerId, $directoryId, $groupName, $groupCreatedAtDate = null, array $dossierItems) {
 
 		$url = $this->prepareUrl("dossier_item_groups", []);
