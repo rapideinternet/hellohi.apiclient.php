@@ -96,16 +96,29 @@ class Model
 		return ModelTransformer::fromData($response, $this->endpoint);
 	}
 
-	public static function create($endpoint, $data = [], $includes = []) {
-		$client = Client::getInstance();
-		$response = $client->post($endpoint, $data, $includes);
+    public static function create($endpoint, $data = [], $includes = []) {
+        $client = Client::getInstance();
+        $response = $client->post($endpoint, $data, $includes);
 
-		if(!$response) {
-			return null;
-		}
+        if(!$response) {
+            return null;
+        }
 
-		return ModelTransformer::fromData($response, $endpoint);
-	}
+        return ModelTransformer::fromData($response, $endpoint);
+    }
+
+    public static function search($endpoint, $data, $includes = [], $perPage = 15, $currentPage = 1) {
+        $client = Client::getInstance();
+        $response = $client->get("search/".$endpoint. "?" . http_build_query($data), $includes, $perPage, $currentPage);
+
+        $data = ModelTransformer::fromData($response, $endpoint);
+        if($response['meta'] != null && array_key_exists('pagination', $response['meta'])){
+            $pagination = ModelTransformer::paginationData($response, $endpoint);
+        }else{
+            $pagination['total'] = 1;
+        }
+        return ModelTransformer::paginate($data, $pagination['total'], $perPage, $currentPage);
+    }
 
 	public function delete() {
 		$client = Client::getInstance();

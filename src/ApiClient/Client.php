@@ -95,18 +95,24 @@ class Client
 		]);
 	}
 
-	private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1) {
-		$url = $this->baseUrl."/".$endpoint;
+    private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1) {
+        $url = $this->baseUrl."/".$endpoint;
 
-		if(count($includes)) {
-			$url .= "?include=".implode(",", $includes);
-			$url .= "&limit=". $perPage ."&page=". $currentPage;
-		}else{
-			$url .= "?limit=". $perPage ."&page=". $currentPage;
-		}
+        if(isset(parse_url($url)['query'])){
+            $sign = '&';
+        } else {
+            $sign = '?';
+        }
 
-		return $url;
-	}
+        if(count($includes)) {
+            $url .= $sign."include=".implode(",", $includes);
+            $url .= "&limit=". $perPage ."&page=". $currentPage;
+        }else{
+            $url .= $sign."limit=". $perPage ."&page=". $currentPage;
+        }
+
+        return $url;
+    }
 
 	public function getToken() {
 		return $this->oAuth->getAccessToken();
@@ -246,51 +252,51 @@ class Client
 		return $message;
 	}
 
-	public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
-	{
-		$url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
+    public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
+    {
+        $url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
 
-		try {
-			$response = $this->client->request($method, $url, [
-				'headers' => $this->getHeaders(),
-				'json' => $data
-			]);
+        try {
+            $response = $this->client->request($method, $url, [
+                'headers' => $this->getHeaders(),
+                'json' => $data
+            ]);
 
-		} catch (Exception $e) {
-			// api exception ?
-			if ($e instanceof GuzzleHttp\Exception\ClientException) {
-				$contents = $e->getResponse()->getBody(true)->getContents();
-				$message = $this->parseErrors($contents);
+        } catch (Exception $e) {
+            // api exception ?
+            if ($e instanceof GuzzleHttp\Exception\ClientException) {
+                $contents = $e->getResponse()->getBody(true)->getContents();
+                $message = $this->parseErrors($contents);
 
-				if(isset($contents['status_code'])) {
-					if ($this->exceptions) {
-						throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
-					}
-				} 
-			} else if($e instanceof GuzzleHttp\Exception\RequestException) {
-				$contents = $e->getResponse()->getBody(true)->getContents();
-				$message = $this->parseErrors($contents);
-			}
+                if(isset($contents['status_code'])) {
+                    if ($this->exceptions) {
+                        throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+                    }
+                }
+            } else if($e instanceof GuzzleHttp\Exception\RequestException) {
+                $contents = $e->getResponse()->getBody(true)->getContents();
+                $message = $this->parseErrors($contents);
+            }
 
-			// general exception
-			if($this->exceptions) {
-				throw new Exception($endpoint . ": " . $e->getMessage());
-			}
+            // general exception
+            if($this->exceptions) {
+                throw new Exception($endpoint . ": " . $e->getMessage());
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		$data = $response->getBody()->getContents();
-		return $this->decodeResponseData($data);
-	}
+        $data = $response->getBody()->getContents();
+        return $this->decodeResponseData($data);
+    }
 
 	private function decodeResponseData($data) {
 		return json_decode($data, true);
 	}
 
-	public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
-		return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
-	}
+    public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
+        return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
+    }
 
 	public function patch($endpoint, $data = [], $includes = []) {
 		return $this->call('PATCH', $endpoint, $data, $includes);
