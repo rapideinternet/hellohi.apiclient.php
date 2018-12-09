@@ -136,7 +136,6 @@ class Client
             ]);
 
         } catch (Exception $e) {
-            dd($e);
             // api exception ?
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
                 $contents = $e->getResponse()->getBody(true)->getContents();
@@ -163,36 +162,26 @@ class Client
         return $response;
     }
 
-	public function uploadDossierItems($customerId, $directoryId, $groupName, $groupCreatedAtDate = null, array $dossierItems) {
+	public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null) {
 
-		$url = $this->prepareUrl("dossier_item_groups", []);
+		$url = $this->prepareUrl("dossier_items", []);
 
 		$parts = [
 			['name' => 'dossier_directory_id', 'contents' => $directoryId],
 			['name' => 'customer_id', 'contents' => $customerId],
-			['name' => 'name', 'contents' => $groupName],
-			['name' => 'created_at', 'contents' => $groupCreatedAtDate],
-			['name' => 'status', 'contents' => 'open'],
-			['name' => 'is_public', 'contents' =>  0]
+			['name' => 'name', 'contents' => $name],
+			['name' => 'year', 'contents' => $year],
+			['name' => 'period', 'contents' => $period],
+			// ['name' => 'created_at', 'contents' => $createdAtDate], // todo: api must allow this param
+			['name' => 'status', 'contents' => $status],
+			['name' => 'resource', 'contents' => $resource] // fopen("foo.txt", "r")
 		];
-
-		foreach($dossierItems as $i => $dossierItem) {
-			$parts[] = [
-				'name' => 'dossier_items['.$i.'][name]',
-				'contents' => $dossierItem['name'],
-			];
-
-			$parts[] = [
-				'name' => 'dossier_items['.$i.'][resource]',
-				'contents' => $dossierItem['handle'],
-			];
-		}
 
 		$response = $this->uploadClient->post($url, [
 			'headers' => [
 				'Authorization' => 'Bearer '.$this->getToken(),
 				'X-Tenant' => $this->tenantId,
-				'accept' => 'application/json'
+                'Accept' => 'application/json'
 			],
 			'multipart' => $parts
 		]);
