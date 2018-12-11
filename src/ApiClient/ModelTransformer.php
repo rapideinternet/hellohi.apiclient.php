@@ -32,14 +32,16 @@ class ModelTransformer
 
 		$unwrapped = [];
 
-		foreach($data as $key => $val) {
-			if(is_array($val)) {
-				$unwrapped[$key] = self::unwrapDataEnvelopes($val);
-			} else {
-				$unwrapped[$key] = $val;
+		if (is_array($data) || is_object($data)){
+			foreach($data as $key => $val) {
+				if(is_array($val)) {
+					$unwrapped[$key] = self::unwrapDataEnvelopes($val);
+				} else {
+					$unwrapped[$key] = $val;
+				}
 			}
+			return $unwrapped;
 		}
-		return $unwrapped;
 	}
 
 	public static function paginationData($data, $endpoint) {
