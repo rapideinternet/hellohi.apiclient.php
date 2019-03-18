@@ -2,9 +2,9 @@
 
 use Exception;
 use GuzzleHttp;
-use kamermans\OAuth2\OAuth2Middleware;
 use GuzzleHttp\HandlerStack;
 use kamermans\OAuth2\GrantType\PasswordCredentials;
+use kamermans\OAuth2\OAuth2Middleware;
 
 class Client
 {
@@ -37,33 +37,39 @@ class Client
 		$this->setTenantId($tenantId);
 	}
 
-	public function getLastError() {
+	public function getLastError()
+	{
 		return $this->lastError;
 	}
 
-	public static function init($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId) {
-		if(!self::$instance) {
+	public static function init($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId)
+	{
+		if (!self::$instance) {
 			self::$instance = new self($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId);
 		}
 		return self::$instance;
 	}
 
-	public static function clearInstance() {
+	public static function clearInstance()
+	{
 		self::$instance = null;
 	}
 
-	public static function getInstance() {
-		if(!self::$instance) {
+	public static function getInstance()
+	{
+		if (!self::$instance) {
 			throw new Exception("Client not initialized, run init() first");
 		}
 		return self::$instance;
 	}
 
-	private function getHeaders() {
+	private function getHeaders()
+	{
 		return $this->headers;
 	}
 
-	private function addHeader($header, $value) {
+	private function addHeader($header, $value)
+	{
 		$this->headers[$header] = [$value];
 	}
 
@@ -95,74 +101,77 @@ class Client
 		]);
 	}
 
-    private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1) {
-        $url = $this->baseUrl."/".$endpoint;
+	private function prepareUrl($endpoint, $includes, $perPage = 15, $currentPage = 1)
+	{
+		$url = $this->baseUrl . "/" . $endpoint;
 
-        if(isset(parse_url($url)['query'])){
-            $sign = '&';
-        } else {
-            $sign = '?';
-        }
+		if (isset(parse_url($url)['query'])) {
+			$sign = '&';
+		} else {
+			$sign = '?';
+		}
 
-        if(count($includes)) {
-            $url .= $sign."include=".implode(",", $includes);
-            $url .= "&limit=". $perPage ."&page=". $currentPage;
-        }else{
-            $url .= $sign."limit=". $perPage ."&page=". $currentPage;
-        }
+		if (count($includes)) {
+			$url .= $sign . "include=" . implode(",", $includes);
+			$url .= "&limit=" . $perPage . "&page=" . $currentPage;
+		} else {
+			$url .= $sign . "limit=" . $perPage . "&page=" . $currentPage;
+		}
 
-        return $url;
-    }
+		return $url;
+	}
 
-	public function getToken() {
+	public function getToken()
+	{
 		return $this->oAuth->getAccessToken();
 	}
 
-    /**
-     * @param $dossierItemId
-     * @return null|$response
-     * @throws ApiException
-     * @throws Exception
-     */
-    public function downloadDossierItem($dossierItemId)
-    {
-        $endpoint = sprintf("dossier_items/%s/download", $dossierItemId);
-        $url = $this->prepareUrl($endpoint, []);
+	/**
+	 * @param $dossierItemId
+	 * @return null|$response
+	 * @throws ApiException
+	 * @throws Exception
+	 */
+	public function downloadDossierItem($dossierItemId)
+	{
+		$endpoint = sprintf("dossier_items/%s/download", $dossierItemId);
+		$url = $this->prepareUrl($endpoint, []);
 
-        try {
-            $response = $this->client->request('GET', $url, [
-                'headers' => $this->getHeaders(),
-                'stream' => true
-            ]);
+		try {
+			$response = $this->client->request('GET', $url, [
+				'headers' => $this->getHeaders(),
+				'stream' => true
+			]);
 
-        } catch (Exception $e) {
-            // api exception ?
-            if ($e instanceof GuzzleHttp\Exception\ClientException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
+		} catch (Exception $e) {
+			// api exception ?
+			if ($e instanceof GuzzleHttp\Exception\ClientException) {
+				$contents = $e->getResponse()->getBody(true)->getContents();
+				$message = $this->parseErrors($contents);
 
-                if(isset($contents['status_code'])) {
-                    if ($this->exceptions) {
-                        throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
-                    }
-                }
-            } else if($e instanceof GuzzleHttp\Exception\RequestException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
-            }
+				if (isset($contents['status_code'])) {
+					if ($this->exceptions) {
+						throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+					}
+				}
+			} else if ($e instanceof GuzzleHttp\Exception\RequestException) {
+				$contents = $e->getResponse()->getBody(true)->getContents();
+				$message = $this->parseErrors($contents);
+			}
 
-            // general exception
-            if($this->exceptions) {
-                throw new Exception($endpoint . ": " . $e->getMessage());
-            }
+			// general exception
+			if ($this->exceptions) {
+				throw new Exception($endpoint . ": " . $e->getMessage());
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        return $response;
-    }
+		return $response;
+	}
 
-	public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null) {
+	public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null)
+	{
 
 		$url = $this->prepareUrl("dossier_items", []);
 
@@ -179,9 +188,9 @@ class Client
 
 		$response = $this->uploadClient->post($url, [
 			'headers' => [
-				'Authorization' => 'Bearer '.$this->getToken(),
+				'Authorization' => 'Bearer ' . $this->getToken(),
 				'X-Tenant' => $this->tenantId,
-                'Accept' => 'application/json'
+				'Accept' => 'application/json'
 			],
 			'multipart' => $parts
 		]);
@@ -191,43 +200,46 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
-    public function uploadDossierItemsForThread($threadId, $message,  array $dossierItems) {
+	public function uploadDossierItemsForThread($customerId, $threadId, $message, array $dossierItems)
+	{
+		$url = $this->prepareUrl("tasks", []);
 
-        $url = $this->prepareUrl("threads/".$threadId."/items", []);
+		$parts = [
+			['name' => 'customer_id', 'contents' => $customerId],
+			['name' => 'thread_id', 'contents' => $threadId],
+			['name' => 'message', 'contents' => $message],
+		];
 
-        $parts = [
-            ['name' => 'message', 'contents' => $message],
-        ];
+		foreach ($dossierItems as $i => $dossierItem) {
+			$parts[] = [
+				'name' => 'dossier_items[' . $i . '][name]',
+				'contents' => $dossierItem['name'],
+			];
+			$parts[] = [
+				'name' => 'dossier_items[' . $i . '][resource]',
+				'contents' => $dossierItem['handle'],
+			];
+			$parts[] = [
+				'name' => 'dossier_items[' . $i . '][status]',
+				'contents' => $dossierItem['status'],
+			];
+		}
 
-        foreach($dossierItems as $i => $dossierItem) {
-            $parts[] = [
-                'name' => 'dossier_items['.$i.'][name]',
-                'contents' => $dossierItem['name'],
-            ];
-            $parts[] = [
-                'name' => 'dossier_items['.$i.'][resource]',
-                'contents' => $dossierItem['handle'],
-            ];
-            $parts[] = [
-                'name' => 'dossier_items['.$i.'][status]',
-                'contents' => $dossierItem['status'],
-            ];
-        }
+		$response = $this->uploadClient->post($url, [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $this->getToken(),
+				'X-Tenant' => $this->tenantId,
+				'accept' => 'application/json'
+			],
+			'multipart' => $parts
+		]);
 
-        $response = $this->uploadClient->post($url, [
-            'headers' => [
-                'Authorization' => 'Bearer '.$this->getToken(),
-                'X-Tenant' => $this->tenantId,
-                'accept' => 'application/json'
-            ],
-            'multipart' => $parts
-        ]);
+		$data = $response->getBody()->getContents();
+		return $this->decodeResponseData($data);
+	}
 
-        $data = $response->getBody()->getContents();
-        return $this->decodeResponseData($data);
-    }
-
-	private function parseErrors($contents) {
+	private function parseErrors($contents)
+	{
 		$contents = $this->decodeResponseData($contents);
 
 		if (isset($contents['errors'])) {
@@ -241,65 +253,71 @@ class Client
 		return $message;
 	}
 
-    public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
-    {
-        $url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
+	public function call($method, $endpoint, $data = [], $includes = [], $perPage = 15, $currentPage = 1)
+	{
+		$url = $this->prepareUrl($endpoint, $includes, $perPage, $currentPage);
 
-        try {
-            $response = $this->client->request($method, $url, [
-                'headers' => $this->getHeaders(),
-                'json' => $data
-            ]);
+		try {
+			$response = $this->client->request($method, $url, [
+				'headers' => $this->getHeaders(),
+				'json' => $data
+			]);
 
-        } catch (Exception $e) {
-            // api exception ?
-            if ($e instanceof GuzzleHttp\Exception\ClientException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
+		} catch (Exception $e) {
+			// api exception ?
+			if ($e instanceof GuzzleHttp\Exception\ClientException) {
+				$contents = $e->getResponse()->getBody(true)->getContents();
+				$message = $this->parseErrors($contents);
 
-                if(isset($contents['status_code'])) {
-                    if ($this->exceptions) {
-                        throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
-                    }
-                }
-            } else if($e instanceof GuzzleHttp\Exception\RequestException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
-            }
+				if (isset($contents['status_code'])) {
+					if ($this->exceptions) {
+						throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
+					}
+				}
+			} else if ($e instanceof GuzzleHttp\Exception\RequestException) {
+				$contents = $e->getResponse()->getBody(true)->getContents();
+				$message = $this->parseErrors($contents);
+			}
 
-            // general exception
-            if($this->exceptions) {
-                throw new Exception($endpoint . ": " . $e->getMessage());
-            }
+			// general exception
+			if ($this->exceptions) {
+				throw new Exception($endpoint . ": " . $e->getMessage());
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        $data = $response->getBody()->getContents();
-        return $this->decodeResponseData($data);
-    }
+		$data = $response->getBody()->getContents();
+		return $this->decodeResponseData($data);
+	}
 
-	private function decodeResponseData($data) {
+	private function decodeResponseData($data)
+	{
 		return json_decode($data, true);
 	}
 
-    public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1) {
-        return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
-    }
+	public function get($endpoint, $includes = [], $perPage = 15, $currentPage = 1)
+	{
+		return $this->call('GET', $endpoint, [], $includes, $perPage, $currentPage);
+	}
 
-	public function patch($endpoint, $data = [], $includes = []) {
+	public function patch($endpoint, $data = [], $includes = [])
+	{
 		return $this->call('PATCH', $endpoint, $data, $includes);
 	}
 
-	public function post($endpoint, $data = [], $includes = []) {
+	public function post($endpoint, $data = [], $includes = [])
+	{
 		return $this->call('POST', $endpoint, $data, $includes);
 	}
 
-	public function delete($endpoint) {
+	public function delete($endpoint)
+	{
 		return $this->call('DELETE', $endpoint);
 	}
 
-	public function setTenantId($id) {
+	public function setTenantId($id)
+	{
 		$this->tenantId = $id;
 		$this->addHeader('X-Tenant', $id);
 	}
