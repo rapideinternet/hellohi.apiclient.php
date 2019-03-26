@@ -238,6 +238,40 @@ class Client
 		return $this->decodeResponseData($data);
 	}
 
+	public function createEntitiesForWebshop($customerData, $personData, $dossierItemName, $dossierItemHandle)
+	{
+		$url = $this->prepareUrl("webshop", []);
+
+		foreach ($customerData as $key => $val) {
+			$parts[] = ['name' => 'customer[' . $key . ']', 'contents' => $val];
+		}
+
+		foreach ($personData as $key => $val) {
+			$parts[] = ['name' => 'person[' . $key . ']', 'contents' => $val];
+		}
+
+		$parts[] = [
+			'name' => 'dossier_item[name]',
+			'contents' => $dossierItemName,
+		];
+		$parts[] = [
+			'name' => 'dossier_item[resource]',
+			'contents' => $dossierItemHandle,
+		];
+
+		$response = $this->uploadClient->post($url, [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $this->getToken(),
+				'X-Tenant' => $this->tenantId,
+				'accept' => 'application/json'
+			],
+			'multipart' => $parts
+		]);
+
+		$data = $response->getBody()->getContents();
+		return $this->decodeResponseData($data);
+	}
+
 	private function parseErrors($contents)
 	{
 		$contents = $this->decodeResponseData($contents);
