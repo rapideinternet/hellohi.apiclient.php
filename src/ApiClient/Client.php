@@ -197,7 +197,7 @@ class Client
         return $response;
     }
 
-    public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null)
+    public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null, $originalFilename = null)
     {
 
         $url = $this->prepareUrl("dossier_items", []);
@@ -206,9 +206,10 @@ class Client
             ['name' => 'dossier_directory_id', 'contents' => $directoryId],
             ['name' => 'customer_id', 'contents' => $customerId],
             ['name' => 'name', 'contents' => $name],
+            ['name' => 'original_filename', 'contents' => $originalFilename],
             ['name' => 'year', 'contents' => $year],
             ['name' => 'period', 'contents' => $period],
-            // ['name' => 'created_at', 'contents' => $createdAtDate], // todo: api must allow this param
+            ['name' => 'created_at', 'contents' => $createdAtDate],
             ['name' => 'status', 'contents' => $status],
             ['name' => 'resource', 'contents' => $resource] // fopen("foo.txt", "r")
         ];
