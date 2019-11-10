@@ -3,6 +3,7 @@
 use Exception;
 use GuzzleHttp;
 use GuzzleHttp\HandlerStack;
+use kamermans\OAuth2\GrantType\ClientCredentials;
 use kamermans\OAuth2\GrantType\PasswordCredentials;
 use kamermans\OAuth2\OAuth2Middleware;
 
@@ -37,7 +38,8 @@ class Client
         return $this->lastError;
     }
 
-    private function initFromBearerTokenInternal($baseUrl, $accessToken) {
+    private function initFromBearerTokenInternal($baseUrl, $accessToken)
+    {
         $this->token = $accessToken;
         $this->baseUrl = $baseUrl;
 
@@ -47,14 +49,23 @@ class Client
         $this->client = new GuzzleHttp\Client(['debug' => false, 'exceptions' => false]);
     }
 
-    public static function initFromBearerToken($baseUrl, $accessToken) {
+    public static function initFromBearerToken($baseUrl, $accessToken)
+    {
         $instance = self::getInstance();
         $instance->initFromBearerTokenInternal($baseUrl, $accessToken);
 
         return self::$instance;
     }
 
-    private function initFromCredentialsInternal($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId) {
+    private function initFromCredentialsInternal(
+        $auhUrl,
+        $baseUrl,
+        $clientId,
+        $clientSecret,
+        $username = null,
+        $password = null,
+        $tenantId
+    ) {
         $this->baseUrl = $baseUrl;
         $this->tenantId = $tenantId;
 
@@ -63,17 +74,33 @@ class Client
         $this->setTenantId($tenantId);
     }
 
-    public static function initFromCredentials($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId) {
+    public static function initFromCredentials(
+        $auhUrl,
+        $baseUrl,
+        $clientId,
+        $clientSecret,
+        $username = null,
+        $password = null,
+        $tenantId
+    ) {
         $instance = self::getInstance();
-        $instance->initFromCredentialsInternal($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId);
+        $instance->initFromCredentialsInternal($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password,
+            $tenantId);
         return $instance;
     }
 
     /*
      * Keep regular init for backwards compatibility
      */
-    public static function init($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId)
-    {
+    public static function init(
+        $auhUrl,
+        $baseUrl,
+        $clientId,
+        $clientSecret,
+        $username = null,
+        $password = null,
+        $tenantId
+    ) {
         return self::initFromCredentials($auhUrl, $baseUrl, $clientId, $clientSecret, $username, $password, $tenantId);
     }
 
@@ -100,18 +127,25 @@ class Client
         $this->headers[$header] = [$value];
     }
 
-    private function getClient($auhUrl, $clientId, $clientSecret, $username, $password)
+    private function getClient($auhUrl, $clientId, $clientSecret, $username = null, $password = null)
     {
         $reauth_client = new GuzzleHttp\Client([
             'base_uri' => $auhUrl,
         ]);
 
-        $grant_type = new PasswordCredentials($reauth_client, [
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret,
-            'username' => $username,
-            'password' => $password,
-        ]);
+        if ($username !== null && $password !== null) {
+            $grant_type = new PasswordCredentials($reauth_client, [
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'username' => $username,
+                'password' => $password,
+            ]);
+        } else {
+            $grant_type = new ClientCredentials($reauth_client, [
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret
+            ]);
+        }
 
         $this->oAuth = new OAuth2Middleware($grant_type);
 
@@ -181,9 +215,11 @@ class Client
                         throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
                     }
                 }
-            } else if ($e instanceof GuzzleHttp\Exception\RequestException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
+            } else {
+                if ($e instanceof GuzzleHttp\Exception\RequestException) {
+                    $contents = $e->getResponse()->getBody(true)->getContents();
+                    $message = $this->parseErrors($contents);
+                }
             }
 
             // general exception
@@ -197,8 +233,17 @@ class Client
         return $response;
     }
 
-    public function uploadDossierItem($customerId, $directoryId, $resource, $name, $status, $year = null, $period = null, $createdAtDate = null, $originalFilename = null)
-    {
+    public function uploadDossierItem(
+        $customerId,
+        $directoryId,
+        $resource,
+        $name,
+        $status,
+        $year = null,
+        $period = null,
+        $createdAtDate = null,
+        $originalFilename = null
+    ) {
 
         $url = $this->prepareUrl("dossier_items", []);
 
@@ -336,9 +381,11 @@ class Client
                         throw new ApiException($endpoint . ": " . $message, $contents['status_code']);
                     }
                 }
-            } else if ($e instanceof GuzzleHttp\Exception\RequestException) {
-                $contents = $e->getResponse()->getBody(true)->getContents();
-                $message = $this->parseErrors($contents);
+            } else {
+                if ($e instanceof GuzzleHttp\Exception\RequestException) {
+                    $contents = $e->getResponse()->getBody(true)->getContents();
+                    $message = $this->parseErrors($contents);
+                }
             }
 
             // general exception
