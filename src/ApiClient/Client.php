@@ -21,6 +21,7 @@ class Client
     public $exceptions = false;
 
     public $lastError = "";
+    private $userId;
 
     private function __construct()
     {
@@ -369,9 +370,9 @@ class Client
                 'headers' => $this->getHeaders(),
                 'json' => $data
             ]);
-
+            
         } catch (Exception $e) {
-            // api exception ?
+
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
                 $contents = $e->getResponse()->getBody(true)->getContents();
                 $message = $this->parseErrors($contents);
@@ -429,5 +430,11 @@ class Client
     {
         $this->tenantId = $id;
         $this->addHeader('X-Tenant', $id);
+    }
+
+    public function setUser($id)
+    {
+        $this->userId = $id;
+        $this->addHeader('X-User', $id);
     }
 }
