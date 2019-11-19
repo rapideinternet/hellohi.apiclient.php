@@ -206,6 +206,9 @@ class Client
             ]);
         } catch (Exception $e) {
             // api exception ?
+
+            $this->lastError = $e->getMessage();
+
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
                 $contents = $e->getResponse()->getBody(true)->getContents();
                 $message = $this->parseErrors($contents);
@@ -219,14 +222,11 @@ class Client
                 if ($e instanceof GuzzleHttp\Exception\RequestException) {
                     $contents = $e->getResponse()->getBody(true)->getContents();
                     $message = $this->parseErrors($contents);
-                } else {
-                    $this->lastError = $e->getMessage();
                 }
             }
 
             // general exception
             if ($this->exceptions) {
-                $this->lastError = $e->getMessage();
                 throw new Exception($endpoint . ": " . $e->getMessage());
             }
 
@@ -358,7 +358,9 @@ class Client
             $message = $contents['message'];;
         }
 
-        $this->lastError = $message;
+        if (!empty($message)) {
+            $this->lastError = $message;
+        }
 
         return $message;
     }
@@ -372,7 +374,7 @@ class Client
                 'headers' => $this->getHeaders(),
                 'json' => $data
             ]);
-            
+
         } catch (Exception $e) {
 
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
