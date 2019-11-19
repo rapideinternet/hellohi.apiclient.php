@@ -207,8 +207,6 @@ class Client
         } catch (Exception $e) {
             // api exception ?
 
-            $this->lastError = $e->getMessage();
-
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
                 $contents = $e->getResponse()->getBody(true)->getContents();
                 $message = $this->parseErrors($contents);
@@ -376,6 +374,8 @@ class Client
             ]);
 
         } catch (Exception $e) {
+
+            $this->lastError = $e->getMessage();
 
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
                 $contents = $e->getResponse()->getBody(true)->getContents();
