@@ -204,7 +204,6 @@ class Client
                 'headers' => $this->getHeaders(),
                 'stream' => true
             ]);
-
         } catch (Exception $e) {
             // api exception ?
             if ($e instanceof GuzzleHttp\Exception\ClientException) {
@@ -220,11 +219,14 @@ class Client
                 if ($e instanceof GuzzleHttp\Exception\RequestException) {
                     $contents = $e->getResponse()->getBody(true)->getContents();
                     $message = $this->parseErrors($contents);
+                } else {
+                    $this->lastError = $e->getMessage();
                 }
             }
 
             // general exception
             if ($this->exceptions) {
+                $this->lastError = $e->getMessage();
                 throw new Exception($endpoint . ": " . $e->getMessage());
             }
 
