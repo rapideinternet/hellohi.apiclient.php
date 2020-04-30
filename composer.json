@@ -16,13 +16,9 @@
   "require": {
     "php": ">=7.0",
     "kamermans/guzzle-oauth2-subscriber": "^1.0",
-    "illuminate/pagination": "^5.6|^6.0",
-    "illuminate/http": "^5.6|^6.0",
-    "tightenco/collect": "5.7.16"
-  },
-  "require-dev": {
-    "php": ">=7.0",
-    "kamermans/guzzle-oauth2-subscriber": "^1.0"
+    "illuminate/pagination": "^5.6|^5.7|^5.8|^6.0|^7.0",
+    "illuminate/http": "^5.6|^5.7|^5.8|^6.0|^7.0",
+    "tightenco/collect": "7.9.2"
   },
   "minimum-stability": "dev",
   "autoload": {
